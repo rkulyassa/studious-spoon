@@ -1,11 +1,21 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { uploadFile } from "@/actions";
+import { listFiles, uploadFile } from "@/actions";
+import { UploadedFile } from "@/types";
 
 export default function Page() {
-  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState<UploadedFile[]>([]);
+
+  useEffect(() => {
+    async function fetchFiles() {
+      const data = await listFiles();
+      setFiles(data);
+    }
+
+    fetchFiles();
+  }, []);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     // console.log(acceptedFiles);
@@ -14,7 +24,7 @@ export default function Page() {
       formData.append("file", file);
       await uploadFile(formData);
     }
-    setUploadedFiles((prevFiles) => [...prevFiles, ...acceptedFiles]);
+    // setFiles((prevFiles) => [...prevFiles, ...acceptedFiles]);
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -41,11 +51,11 @@ export default function Page() {
 
       <div className="mt-6 w-3/4 max-w-md">
         <h2 className="text-lg font-semibold mb-2">Uploaded Files</h2>
-        {uploadedFiles.length > 0 ? (
+        {files.length > 0 ? (
           <ul className="border p-4 rounded-md bg-gray-100">
-            {uploadedFiles.map((file, index) => (
-              <li key={index} className="text-sm text-gray-700">
-                {file.name} - {(file.size / 1024 / 1024).toFixed(2)} MB
+            {files.map((file, i) => (
+              <li key={i} className="text-sm text-gray-700">
+                {file.key} - {(file.size / 1024 / 1024).toFixed(2)} MB
               </li>
             ))}
           </ul>
