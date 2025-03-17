@@ -2,7 +2,12 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { getPresignedDownloadUrl, listFiles, uploadFile } from "@/actions";
+import {
+  deleteFile,
+  getPresignedDownloadUrl,
+  listFiles,
+  uploadFile,
+} from "@/actions";
 import { UploadedFile } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -31,8 +36,8 @@ export default function Page() {
       formData.append("file", file);
       await uploadFile(formData);
 
-      setFiles([
-        ...files,
+      setFiles((prevFiles) => [
+        ...prevFiles,
         {
           key: file.name,
           size: file.size,
@@ -52,8 +57,7 @@ export default function Page() {
 
   useEffect(() => {
     (async () => {
-      const data = await listFiles();
-      setFiles(data);
+      setFiles(await listFiles());
       setLoaded(true);
     })();
   }, []);
@@ -61,6 +65,11 @@ export default function Page() {
   const handleDownload = async (objectKey: string) => {
     const url = await getPresignedDownloadUrl(objectKey);
     window.open(url, "_blank");
+  };
+
+  const handleDelete = async (objectKey: string) => {
+    await deleteFile(objectKey);
+    setFiles((prevFiles) => prevFiles.filter((file) => file.key !== objectKey));
   };
 
   return (
@@ -112,6 +121,7 @@ export default function Page() {
                     variant="destructive"
                     size="icon"
                     className="cursor-pointer"
+                    onClick={() => handleDelete(file.key)}
                   >
                     <TrashIcon />
                   </Button>

@@ -5,9 +5,10 @@ import {
   GetObjectCommand,
   ListObjectsV2Command,
   PutObjectCommand,
+  DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
-import { UploadedFile } from "@/types";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { UploadedFile } from "@/types";
 
 const s3 = new S3Client({
   region: "auto",
@@ -25,13 +26,15 @@ export async function listFiles(): Promise<UploadedFile[]> {
     })
   );
 
-  if (!data.Contents) return [];
+  const files = data.Contents
+    ? data.Contents.map((file) => ({
+        key: file.Key!,
+        size: file.Size!,
+        uploaded: file.LastModified!,
+      }))
+    : [];
 
-  return data.Contents.map((file) => ({
-    key: file.Key!,
-    size: file.Size!,
-    uploaded: file.LastModified!,
-  }));
+  return files;
 }
 
 export async function getPresignedDownloadUrl(objectKey: string) {
@@ -57,6 +60,15 @@ export async function uploadFile(formData: FormData) {
       Key: file.name,
       Body: fileBuffer,
       ContentType: file.type,
+    })
+  );
+}
+
+export async function deleteFile(objectKey: string) {
+  await s3.send(
+    new DeleteObjectCommand({
+      Bucket: process.env.R2_BUCKET_NAME,
+      Key: objectKey,
     })
   );
 }
