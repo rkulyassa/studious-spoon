@@ -4,17 +4,18 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { listFiles, uploadFile } from "@/actions";
 import { UploadedFile } from "@/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Page() {
+  const [loaded, setLoaded] = useState(false);
   const [files, setFiles] = useState<UploadedFile[]>([]);
 
   useEffect(() => {
-    async function fetchFiles() {
+    (async () => {
       const data = await listFiles();
       setFiles(data);
-    }
-
-    fetchFiles();
+      setLoaded(true);
+    })();
   }, []);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
@@ -39,22 +40,31 @@ export default function Page() {
     <div className="flex flex-col items-center justify-start min-h-screen p-10">
       <div
         {...getRootProps()}
-        className="border-2 border-dashed border-gray-400 p-6 rounded-md text-center cursor-pointer hover:border-gray-600 transition w-3/4 max-w-md"
+        className="border border-dashed border-gray-300 p-6 rounded-md text-center cursor-pointer hover:border-gray-600 transition w-3/4 max-w-lg"
       >
         <input {...getInputProps()} />
         {isDragActive ? (
-          <p>Drop the files here ...</p>
+          <span className="text-gray-600 text-sm">Drop the files here ...</span>
         ) : (
-          <p>Drag & drop some files here, or click to select files</p>
+          <span className="text-gray-600 text-sm">
+            Drag & drop some files here, or click to select files
+          </span>
         )}
       </div>
 
-      <div className="mt-6 w-3/4 max-w-md">
+      <div className="mt-6 w-3/4 max-w-lg">
         <h2 className="text-lg font-semibold mb-2">Uploaded Files</h2>
-        {files.length > 0 ? (
-          <ul className="border p-4 rounded-md bg-gray-100">
+        {!loaded ? (
+          [...Array(5)].map((_, i) => (
+            <Skeleton key={i} className="h-14 mb-2" />
+          ))
+        ) : files.length > 0 ? (
+          <ul>
             {files.map((file, i) => (
-              <li key={i} className="text-sm text-gray-700">
+              <li
+                key={i}
+                className="border h-14 p-4 rounded-md bg-gray-50 mb-2 text-sm"
+              >
                 {file.key} - {(file.size / 1024 / 1024).toFixed(2)} MB
               </li>
             ))}
