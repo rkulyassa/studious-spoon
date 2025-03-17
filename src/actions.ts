@@ -2,10 +2,12 @@
 
 import {
   S3Client,
-  PutObjectCommand,
+  GetObjectCommand,
   ListObjectsV2Command,
+  PutObjectCommand,
 } from "@aws-sdk/client-s3";
 import { UploadedFile } from "@/types";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const s3 = new S3Client({
   region: "auto",
@@ -30,6 +32,16 @@ export async function listFiles(): Promise<UploadedFile[]> {
     size: file.Size!,
     uploaded: file.LastModified!,
   }));
+}
+
+export async function getPresignedDownloadUrl(objectKey: string) {
+  const command = new GetObjectCommand({
+    Bucket: process.env.R2_BUCKET_NAME,
+    Key: objectKey,
+  });
+
+  const url = await getSignedUrl(s3, command, { expiresIn: 60 * 5 });
+  return url;
 }
 
 export async function uploadFile(formData: FormData) {
