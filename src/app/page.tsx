@@ -10,22 +10,21 @@ export default function Page() {
   const [loaded, setLoaded] = useState(false);
   const [files, setFiles] = useState<UploadedFile[]>([]);
 
-  useEffect(() => {
-    (async () => {
-      const data = await listFiles();
-      setFiles(data);
-      setLoaded(true);
-    })();
-  }, []);
-
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    // console.log(acceptedFiles);
     for (const file of acceptedFiles) {
       const formData = new FormData();
       formData.append("file", file);
       await uploadFile(formData);
+
+      setFiles([
+        ...files,
+        {
+          key: file.name,
+          size: file.size,
+          uploaded: new Date(file.lastModified),
+        },
+      ]);
     }
-    // setFiles((prevFiles) => [...prevFiles, ...acceptedFiles]);
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -35,6 +34,14 @@ export default function Page() {
     },
     maxSize: 5 * 1024 * 1024,
   });
+
+  useEffect(() => {
+    (async () => {
+      const data = await listFiles();
+      setFiles(data);
+      setLoaded(true);
+    })();
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-start min-h-screen p-10">

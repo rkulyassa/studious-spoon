@@ -16,7 +16,7 @@ const s3 = new S3Client({
   },
 });
 
-export async function listFiles(): Promise<Array<UploadedFile>> {
+export async function listFiles(): Promise<UploadedFile[]> {
   const data = await s3.send(
     new ListObjectsV2Command({
       Bucket: process.env.R2_BUCKET_NAME,
