@@ -11,7 +11,19 @@ import {
 import { UploadedFile } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { TrashIcon, DownloadIcon } from "lucide-react";
+import {
+  TrashIcon,
+  DownloadIcon,
+  CalendarArrowUpIcon,
+  HardDriveIcon,
+} from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Courier_Prime } from "next/font/google";
+
+const courier_prime = Courier_Prime({
+  weight: "400",
+  subsets: ["latin"],
+});
 
 export default function Page() {
   const [loaded, setLoaded] = useState(false);
@@ -99,33 +111,59 @@ export default function Page() {
             {files.map((file, i) => (
               <li
                 key={i}
-                className="border h-14 p-4 rounded-md bg-gray-50 text-sm flex justify-between items-center"
+                className="border p-4 rounded-md bg-gray-50 text-sm flex flex-col space-y-2"
               >
-                <div className="flex flex-col">
-                  <span>{file.key}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {/* {(file.size / 1024 / 1024).toFixed(2)} MB */}
-                    {file.size} B
-                  </span>
+                <div className="flex justify-between items-center">
+                  <div className="flex flex-col">
+                    <span className="text-base font-semibold pb-0.5">
+                      {file.key}
+                    </span>
+                    <div className="flex space-x-1">
+                      <CalendarArrowUpIcon size={14} color="gray" />
+                      <span className="text-xs text-muted-foreground">
+                        {file.uploaded.toISOString()}
+                      </span>
+                    </div>
+                    <div className="flex space-x-1">
+                      <HardDriveIcon size={14} color="gray" />
+                      <span className="text-xs text-muted-foreground">
+                        {/* {(file.size / 1024 / 1024).toFixed(2)} MB */}
+                        {file.size} B
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="cursor-pointer"
+                      onClick={() => handleDownload(file.key)}
+                    >
+                      <DownloadIcon />
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      className="cursor-pointer"
+                      onClick={() => handleDelete(file.key)}
+                    >
+                      <TrashIcon />
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex space-x-2">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="cursor-pointer"
-                    onClick={() => handleDownload(file.key)}
-                  >
-                    <DownloadIcon />
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    className="cursor-pointer"
-                    onClick={() => handleDelete(file.key)}
-                  >
-                    <TrashIcon />
-                  </Button>
-                </div>
+
+                <ScrollArea
+                  className={`${courier_prime.className} h-20 border rounded-md bg-white p-2 text-xs text-muted-foreground`}
+                >
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
+                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                  Ut enim ad minim veniam, quis nostrud exercitation ullamco
+                  laboris nisi ut aliquip ex ea commodo consequat. Duis aute
+                  irure dolor in reprehenderit in voluptate velit esse cillum
+                  dolore eu fugiat nulla pariatur. Excepteur sint occaecat
+                  cupidatat non proident, sunt in culpa qui officia deserunt
+                  mollit anim id est laborum.
+                </ScrollArea>
               </li>
             ))}
           </ul>
