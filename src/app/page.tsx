@@ -114,7 +114,7 @@ export default function Page() {
                 className="border p-4 rounded-md bg-gray-50 text-sm flex flex-col space-y-2"
               >
                 <div className="flex justify-between items-center">
-                  <div className="flex flex-col">
+                  <div className="flex flex-col pl-1">
                     <span className="text-base font-semibold pb-0.5">
                       {file.key}
                     </span>
